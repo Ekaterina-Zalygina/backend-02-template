@@ -3,7 +3,7 @@ const url = require("url");
 const getUsers = require("./modules/users");
 
 const server = http.createServer((request, response) => {
-  const parsedUrl = url.parse(request.url, true);
+  const parsedUrl = url.parse(request.url);
 
   if (parsedUrl.pathname === "/" && "hello" in parsedUrl.query) {
     const name = parsedUrl.query.hello;
