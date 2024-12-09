@@ -4,42 +4,45 @@ const getUsers = require("./modules/users");
 
 const server = http.createServer((request, response) => {
   const parsedUrl = url.parse(request.url, true);
-  const query = parsedUrl.query;
 
-  if (parsedUrl.pathname === "/") {
-    if ("hello" in query) {
-      if (query.hello) {
-        response.statusCode = 200;
-        response.setHeader("Content-Type", "text/plain");
-        response.end(`Hello, ${query.hello}`);
-      } else {
-        response.statusCode = 400;
-        response.setHeader("Content-Type", "text/plain");
-        response.end("Enter a name");
-      }
-      return;
+  if (parsedUrl.pathname === "/" && "hello" in parsedUrl.query) {
+    const name = parsedUrl.query.hello;
+
+    if (name) {
+      response.statusCode = 200;
+      response.setHeader("Content-Type", "text/plain");
+      response.write(`Hello, ${name}`);
+    } else {
+      response.statusCode = 400;
+      response.setHeader("Content-Type", "text/plain");
+      response.write("Enter a name");
     }
-
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/plain");
-    response.end("Hello, World!");
+    response.end();
     return;
   }
 
-  if (parsedUrl.pathname === "/users") {
+  if (parsedUrl.pathname === "/" && request.url === "/") {
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/plain");
+    response.write("Hello, World!");
+    response.end();
+    return;
+  }
+
+  if (parsedUrl.pathname === "/" && "users" in parsedUrl.query) {
     try {
       const users = getUsers();
       response.statusCode = 200;
       response.setHeader("Content-Type", "application/json");
-      response.end(users);
+      response.write(users);
     } catch (err) {
       response.statusCode = 500;
       response.setHeader("Content-Type", "text/plain");
-      response.end("Error reading users file");
+      response.write("Error reading users file");
     }
+    response.end();
     return;
   }
-
   response.statusCode = 500;
   response.setHeader("Content-Type", "text/plain");
   response.end();
